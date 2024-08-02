@@ -1,0 +1,5 @@
+calibre
+iso_3166-1.json
+*.zip
+.env
+.python-version

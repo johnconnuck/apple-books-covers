@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraPaths": ["${workspaceFolder:calibre}/src"],
+    "python.analysis.ignore": ["${workspaceFolder:calibre}/src"],
+    "python.autoComplete.extraPaths": ["${workspaceFolder:calibre}/src"],
+    "cmake.configureOnOpen": false
+}
