@@ -27,7 +27,6 @@ class AppleBooksCovers(Source):
     _countries = load_countries()
 
     KEY_MAX_COVERS = "max_covers"
-    KEY_SIZE = "size"
     KEY_COUNTRY = "country"
     KEY_ADDITIONAL_COUNTRY = "additional_country"
 
@@ -43,14 +42,6 @@ class AppleBooksCovers(Source):
                 " Note that this is per country, so if you have an additional"
                 " country configured there may be up to twice as many covers returned."
             ),
-        ),
-        Option(
-            KEY_SIZE,
-            "choices",
-            "medium",
-            _("Cover size to download"),
-            _("Cover size to download"),
-            {"small": "600x600", "medium": "1000x1000", "large": "Maximum"},
         ),
         Option(
             KEY_COUNTRY,
@@ -140,12 +131,7 @@ class AppleBooksCovers(Source):
         return list(set(self.get_full_cover_urls(results)))
 
     def get_full_cover_urls(self, results):
-        if self.prefs[self.KEY_SIZE] == "small":
-            image = "600x600.jpg"
-        elif self.prefs[self.KEY_SIZE] == "medium":
-            image = "1000x1000.jpg"
-        else:
-            image = "100000x100000-999.jpg"
+        image = "100000x100000-999.jpg"
         return [urljoin(result["artworkUrl100"], image) for result in results]
 
 
