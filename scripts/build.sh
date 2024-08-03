@@ -10,7 +10,7 @@ trap 'error_handler ${LINENO} $?' ERR
 
 
 VERSION=$(git describe --tags --dirty)
-ZIP="Apple.Books.covers.${VERSION}.zip"
+ZIP="Apple.Books.covers-${VERSION}.zip"
 
 curl -OL 'https://salsa.debian.org/iso-codes-team/iso-codes/-/raw/main/data/iso_3166-1.json'
 zip "${ZIP}" -- *.py *.md *.json plugin-import-name-*.txt
