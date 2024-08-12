@@ -13,5 +13,6 @@ VERSION=$(git describe --tags --dirty)
 ZIP="Apple.Books.covers-${VERSION}.zip"
 
 curl -OL 'https://salsa.debian.org/iso-codes-team/iso-codes/-/raw/main/data/iso_3166-1.json'
+rm -f Apple.Books.covers-*.zip
 zip "${ZIP}" -- *.py *.md *.json plugin-import-name-*.txt
 echo Generated "${ZIP}"
