@@ -3,6 +3,7 @@
 # https://github.com/lbschenkel/calibre-amazon-hires-covers
 
 import json
+from itertools import cycle, islice
 from urllib.parse import urlencode, urljoin
 
 from calibre.ebooks.metadata.sources.base import Option, Source
@@ -93,7 +94,7 @@ class AppleBooksCovers(Source):
                 result_queue,
                 abort,
                 log,
-                "",
+                self.KEY_MAX_COVERS,
             )
 
     def get_cover_urls(self, log, title, author, identifiers):
@@ -105,30 +106,40 @@ class AppleBooksCovers(Source):
         country = self.prefs[self.KEY_COUNTRY]
         country2 = self.prefs[self.KEY_ADDITIONAL_COUNTRY]
 
+        results = []
+
         # Try looking up the ISBN first
         if "isbn" in identifiers:
             lookup_params = {"isbn": identifiers["isbn"], **base_params}
-            results = lookup({**lookup_params, "country": country}, self.browser, log)
-            if results:
-                return self.get_full_cover_urls(results)
-
-            if country2 is not None:
-                results = lookup(
+            isbn_results = lookup(
+                {**lookup_params, "country": country}, self.browser, log
+            )
+            if isbn_results:
+                results.extend(isbn_results)
+            elif country2 is not None:
+                isbn_results = lookup(
                     {**lookup_params, "country": country2},
                     self.browser,
                     log,
                 )
-                if results:
-                    return self.get_full_cover_urls(results)
+                if isbn_results:
+                    results.extend(isbn_results)
 
-        # Fall back to a search
+        # Now do a search
         search_params = {"term": f"{author} {title}", **base_params}
-        results = search({**search_params, "country": country}, self.browser, log)
+        search_results = [
+            search({**search_params, "country": country}, self.browser, log)
+        ]
         if country2 is not None:
-            results.extend(
+            search_results.append(
                 search({**search_params, "country": country2}, self.browser, log)
             )
-        return list(set(self.get_full_cover_urls(results)))
+        # Since later results are going to be less relevant,
+        # we want to prioritize the earlier results from both searches
+        results.extend(roundrobin(*search_results))
+
+        # Remove duplicates while preserving order
+        return list(dict.fromkeys(self.get_full_cover_urls(results)))
 
     def get_full_cover_urls(self, results):
         image = "100000x100000-999.jpg"
@@ -154,3 +165,13 @@ def search(params, browser, log):
     log.info("Search URL: " + url)
     results = get_url_json(browser, url)
     return results.get("results", [])
+
+
+def roundrobin(*iterables):
+    "Visit input iterables in a cycle until each is exhausted."
+    # roundrobin('ABC', 'D', 'EF') → A D E B F C
+    # Algorithm credited to George Sakkis
+    iterators = map(iter, iterables)
+    for num_active in range(len(iterables), 0, -1):
+        iterators = cycle(islice(iterators, num_active))
+        yield from map(next, iterators)
