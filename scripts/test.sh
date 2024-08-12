@@ -11,6 +11,9 @@ trap 'error_handler ${LINENO} $?' ERR
 
 set -x
 
+SCRIPT_DIR="$(readlink -f "$(dirname "$0")")"
+"$SCRIPT_DIR/build.sh"
+
 CALIBRE_BIN_PATH="$PWD/calibre"
 PLUGIN=$(find . -type f -name 'Apple.Books.*.zip')
 
