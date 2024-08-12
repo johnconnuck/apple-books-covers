@@ -20,7 +20,7 @@ class AppleBooksCovers(Source):
     name = "Apple Books covers"
     description = "Downloads high resolution covers from the Apple Books store"
     capabilities = frozenset(["cover"])
-    author = "Jan Larres <jan@majutsushi.net>"
+    author = "Jan Larres"
     version = (0, 1, 0)
     can_get_multiple_covers = True
 
